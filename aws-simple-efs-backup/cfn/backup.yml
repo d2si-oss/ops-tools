@@ -1,0 +1,127 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description:
+  Cloudformation template to create resources related to EFS backup
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      "ami": "ami-c58c1dd3"
+    us-west-1:
+      "ami": "ami-c9c7978c"
+    eu-west-1:
+      "ami": "ami-01ccc867"
+    ap-southeast-1:
+      "ami": "ami-66f28c34"
+    ap-northeast-1:
+      "ami": "ami-9c03a89d"
+
+Parameters:
+
+  InstanceType:
+    Type: String
+    Description: "EC2 instance type"
+    Default: "t2.micro"
+
+  SubnetId:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: "EFS source and destination common subnet ID"
+
+  SourceMountSG:
+    Type: "AWS::EC2::SecurityGroup::Id"
+    Description: "Source EFS's security group"
+
+  DestinationMountSG:
+    Type: "AWS::EC2::SecurityGroup::Id"
+    Description: "Destination EFS's security group"
+
+  VpcId:
+    Type: "AWS::EC2::VPC::Id"
+    Description: "VPC ID where EFS mount targets are created"
+
+  SourceEFS:
+    Type: String
+    Description: "EFS Id to backup"
+
+  DestinationEFS:
+    Type: String
+    Description: "Destination EFS Id to backup"
+
+Resources:
+
+  InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref BackupInstanceRole
+
+  BackupInstanceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "CleanupPolicy"
+          PolicyDocument:
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "cloudformation:DeleteStack"
+                Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "ec2:TerminateInstances"
+                Resource: !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "ec2:DescribeInstances"
+                Resource: "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "iam:RemoveRoleFromInstanceProfile"
+                  - "iam:DeleteInstanceProfile"
+                Resource: !Sub "arn:aws:iam::${AWS::AccountId}:instance-profile/${AWS::StackName}-*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "iam:DeleteRolePolicy"
+                  - "iam:DeleteRole"
+                Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-*"
+
+  BackupInstance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", ami]
+     InstanceType: !Ref InstanceType
+     SubnetId: !Ref SubnetId
+     KeyName: prisma-mac
+     IamInstanceProfile: !Ref InstanceProfile
+     SecurityGroupIds:
+       - !Ref SourceMountSG
+       - !Ref DestinationMountSG
+     UserData:
+       "Fn::Base64":
+         !Sub |
+            #!/bin/bash -x
+            yum install -y awscli awslogs nfs-utils
+            curl -sSL https://raw.githubusercontent.com/d2si-oss/ops-tools/master/aws-simple-efs-backup/cfn/backup.sh > /tmp/backup.sh
+            chmod +x /tmp/backup.sh
+            ./tmp/backup.sh ${AWS::StackName} ${SourceEFS} ${DestinationEFS} ${AWS::Region}
+     Tags:
+       -
+         Key: Name
+         Value: !Sub "${AWS::StackName}"
