@@ -98,9 +98,9 @@ Resources:
               -
                 Effect: "Allow"
                 Action:
-                  - "iam:DeleteRolePolicy"
                   - "iam:DeleteRole"
-                Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-*"
+                  - "iam:DeleteRolePolicy"
+                Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-simple-efs-backup-*"
 
   BackupInstance:
     Type: "AWS::EC2::Instance"
@@ -108,7 +108,6 @@ Resources:
      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", ami]
      InstanceType: !Ref InstanceType
      SubnetId: !Ref SubnetId
-     KeyName: prisma-mac
      IamInstanceProfile: !Ref InstanceProfile
      SecurityGroupIds:
        - !Ref SourceMountSG
@@ -116,9 +115,10 @@ Resources:
      UserData:
        "Fn::Base64":
          !Sub |
-            #!/bin/bash -x
+            #!/bin/sh
             yum install -y awscli awslogs nfs-utils
-            curl -sSL https://raw.githubusercontent.com/d2si-oss/ops-tools/master/aws-simple-efs-backup/cfn/backup.sh > /tmp/backup.sh
+            #curl -sSL https://raw.githubusercontent.com/d2si-oss/ops-tools/master/aws-simple-efs-backup/cfn/backup.sh > /tmp/backup.sh
+            curl -sSL https://raw.githubusercontent.com/bonclay7/ops-tools/0ce3923e85771298131acf5dfe7353d4769276fd/aws-simple-efs-backup/cfn/backup.sh > /tmp/backup.sh
             chmod +x /tmp/backup.sh
             ./tmp/backup.sh ${AWS::StackName} ${SourceEFS} ${DestinationEFS} ${AWS::Region}
      Tags:
