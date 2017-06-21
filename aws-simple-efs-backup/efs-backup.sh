@@ -11,7 +11,7 @@ usage(){
 
 verify_args(){
     if [ -z ${2+x} ]; then
-        echo "$1 is mandatory"
+        echo "ERR: $1 is mandatory"
         return 1
     fi
 }
@@ -44,7 +44,7 @@ get_stack_status(){
 }
 
 command -v aws >/dev/null 2>&1 ||
-    { echo >&2 "awscli is missing. Aborting ..."; exit 1; }
+    { echo >&2 "ERR: awscli is missing, aborting!"; exit 1; }
 
 while getopts "s:d:S:i:" arg; do
     case ${arg} in
@@ -69,6 +69,7 @@ src_efs_sg=$(get_mount_target_sg ${src_mount_target_id})
 dst_efs_sg=$(get_mount_target_sg ${dst_mount_target_id})
 
 curdate=$(date +%Y%m%d-%H%M)
+
 aws cloudformation deploy \
     --stack-name "aws-simple-efs-backup-${curdate}" \
     --template-file cfn/backup.yml \
@@ -82,4 +83,4 @@ aws cloudformation deploy \
     DestinationMountSG=${src_efs_sg} \
     --capabilities CAPABILITY_IAM
 
-echo "Backing up in progress, please check cloudformation logs"
+echo "===> backup in progress, please check CloudFormation logs"

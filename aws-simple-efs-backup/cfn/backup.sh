@@ -9,7 +9,6 @@ src_efs=$2
 dst_efs=$3
 region=$4
 
-echo "Checking script parameters"
 verify_args(){
     if [ -z ${2+x} ]; then
         echo "$1 is missing, aborting backup"
@@ -37,6 +36,8 @@ mount_efs(){
         "${efsid}.efs.${region}.amazonaws.com:/" ${mountpoint}
 }
 
+echo "===> checking script parameters"
+
 verify_args "stack_name" ${stack_name}
 verify_args "src_efs" ${src_efs}
 verify_args "dst_efs" ${dst_efs}
@@ -45,7 +46,7 @@ verify_args "region" ${region}
 validate_path ${src_efs}
 validate_path ${dst_efs}
 
-echo "Running backup script"
+echo "===> running backup script"
 
 src_mount="/backup"
 dst_mount="/mnt/backup"
@@ -65,5 +66,5 @@ logfile="${dst_mount}/${src_efs}/efsbackup-logs/${src_efs}-${curr_date}.log"
 rsync -ah --stats --delete --numeric-ids --log-file="${logfile}" \
     ${src_mount} ${dst_mount}/${src_efs}/${curr_date}
 
-echo "Removing cloudformation stack"
+echo "===> removing CloudFormation stack"
 aws cloudformation delete-stack --stack-name ${stack_name} --region ${region}
