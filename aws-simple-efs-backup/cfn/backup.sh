@@ -50,8 +50,8 @@ echo "===> running backup script"
 
 src_mount="/backup"
 dst_mount="/mnt/backup"
-mkdir -p ${src_mount}
-mkdir -p ${dst_mount}
+
+mkdir -p ${src_mount} ${dst_mount}
 
 mount_efs ${src_efs} ${src_mount} ${region}
 mount_efs ${dst_efs} ${dst_mount} ${region}
