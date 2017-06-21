@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
+#
+# Author: Guy-Rodrigue Koffi <guy-rodrigue.koffi@d2-si.eu>
 
-# set -ex
 set -e
-
 
 usage(){
     echo "usage: ${0##*/} -s source-efs -d dest-efs -S subnet_id [-i instance_type]"

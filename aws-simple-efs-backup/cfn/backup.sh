@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# Author: Guy-Rodrigue Koffi <guy-rodrigue.koffi@d2-si.eu>
 
 set -e
 
