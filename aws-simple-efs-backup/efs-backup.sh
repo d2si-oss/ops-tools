@@ -56,10 +56,9 @@ while getopts "s:d:S:i:" arg; do
     esac
 done
 
+curdate=$(date +%Y%m%d-%H%M)
 instance_type=${instance_type:-"t2.micro"}
-vpc_id=$(aws ec2 describe-subnets \
-    --subnet-ids ${subnet_id} \
-    --output text \
+vpc_id=$(aws ec2 describe-subnets --subnet-ids ${subnet_id} --output text \
     --query "Subnets[0].VpcId")
 
 src_mount_target_id=$(get_mount_target_id ${src_efs} ${subnet_id})
@@ -68,7 +67,7 @@ dst_mount_target_id=$(get_mount_target_id ${dst_efs} ${subnet_id})
 src_efs_sg=$(get_mount_target_sg ${src_mount_target_id})
 dst_efs_sg=$(get_mount_target_sg ${dst_mount_target_id})
 
-curdate=$(date +%Y%m%d-%H%M)
+
 
 aws cloudformation deploy \
     --stack-name "aws-simple-efs-backup-${curdate}" \
