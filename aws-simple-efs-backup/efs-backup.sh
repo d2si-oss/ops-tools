@@ -41,10 +41,10 @@ command -v aws >/dev/null 2>&1 ||
 
 while getopts "s:d:S:i:" arg; do
     case ${arg} in
-        s) src_efs=${OPTARG} ;;
         d) dst_efs=${OPTARG} ;;
-        S) subnet_id=${OPTARG} ;;
         i) instance_type=${OPTARG} ;;
+        S) subnet_id=${OPTARG} ;;
+        s) src_efs=${OPTARG} ;;
         *) usage ;;
     esac
 done
