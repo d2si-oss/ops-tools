@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
+#
+# Author: Guy-Rodrigue Koffi <guy-rodrigue.koffi@d2-si.eu>
 
-# set -ex
 set -e
 
-
 usage(){
-    echo "usage: ${0##*/} -s source-efs -d dest-efs -S subnet_id [-i instance_type]"
+    echo "usage: ${0##*/} -s src_efs -d dst_efs -S subnet_id [-i instance_type]"
     return 1
 }
 
 verify_args(){
     if [ -z ${2+x} ]; then
-        echo "$1 is mandatory"
+        echo "ERR: $1 is mandatory"
         return 1
     fi
 }
@@ -36,20 +36,20 @@ get_mount_target_sg(){
 }
 
 get_stack_status(){
-  local stack_name=$1
-  aws cloudformation describe-stacks \
-    --stack-name ${stack_name} \
-    --query 'Stacks[0].StackStatus' \
-    --output text
+    local stack_name=$1
+    aws cloudformation describe-stacks \
+        --stack-name ${stack_name} \
+        --query 'Stacks[0].StackStatus' \
+        --output text
 }
 
 command -v aws >/dev/null 2>&1 ||
-    { echo >&2 "awscli is missing. Aborting ..."; exit 1; }
+    { echo >&2 "ERR: awscli is missing, aborting!"; exit 1; }
 
 while getopts "s:d:S:i:" arg; do
     case ${arg} in
-        s) source_efs=${OPTARG} ;;
-        d) destination_efs=${OPTARG} ;;
+        s) src_efs=${OPTARG} ;;
+        d) dst_efs=${OPTARG} ;;
         S) subnet_id=${OPTARG} ;;
         i) instance_type=${OPTARG} ;;
         *) usage ;;
@@ -62,24 +62,25 @@ vpc_id=$(aws ec2 describe-subnets \
     --output text \
     --query "Subnets[0].VpcId")
 
-source_mount_target_id=$(get_mount_target_id ${source_efs} ${subnet_id})
-dest_mount_target_id=$(get_mount_target_id ${destination_efs} ${subnet_id})
+src_mount_target_id=$(get_mount_target_id ${src_efs} ${subnet_id})
+dst_mount_target_id=$(get_mount_target_id ${dst_efs} ${subnet_id})
 
-source_efs_sg=$(get_mount_target_sg ${source_mount_target_id})
-dest_efs_sg=$(get_mount_target_sg ${dest_mount_target_id})
+src_efs_sg=$(get_mount_target_sg ${src_mount_target_id})
+dst_efs_sg=$(get_mount_target_sg ${dst_mount_target_id})
 
-curr_date=$(date +%Y%m%d-%H%M)
+curdate=$(date +%Y%m%d-%H%M)
+
 aws cloudformation deploy \
-    --stack-name "aws-simple-efs-backup-${curr_date}" \
+    --stack-name "aws-simple-efs-backup-${curdate}" \
     --template-file cfn/backup.yml \
     --parameter-overrides \
     InstanceType=${instance_type} \
-    SourceEFS=${source_efs} \
-    DestinationEFS=${destination_efs} \
+    SourceEFS=${src_efs} \
+    DestinationEFS=${dst_efs} \
     SubnetId=${subnet_id} \
     VpcId=${vpc_id} \
-    SourceMountSG=${source_efs_sg} \
-    DestinationMountSG=${source_efs_sg} \
+    SourceMountSG=${src_efs_sg} \
+    DestinationMountSG=${src_efs_sg} \
     --capabilities CAPABILITY_IAM
 
-echo "Backing up in progress, please check cloudformation logs"
+echo "===> backup in progress, please check CloudFormation logs"
