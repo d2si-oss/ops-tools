@@ -48,6 +48,8 @@ while getopts "s:d:S:i:" arg; do
         *) usage ;;
     esac
 done
+shift $((OPTIND - 1))
+(($# != 0)) && usage
 
 curdate=$(date +%Y%m%d-%H%M)
 instance_type=${instance_type:-"t2.micro"}
