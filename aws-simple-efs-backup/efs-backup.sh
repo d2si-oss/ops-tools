@@ -49,9 +49,8 @@ while getopts "s:d:S:i:" arg; do
     esac
 done
 shift $((OPTIND - 1))
-(($# != 0)) && usage
 
-[[ -z ${dst_efs} || -z ${subnet_id} || -z ${src_efs} ]] && usage
+(($# != 0)) || [[ -z ${dst_efs} || -z ${subnet_id} || -z ${src_efs} ]] && usage
 
 curdate=$(date +%Y%m%d-%H%M)
 instance_type=${instance_type:-"t2.micro"}
