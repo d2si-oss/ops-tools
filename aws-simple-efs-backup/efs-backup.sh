@@ -67,8 +67,6 @@ dst_mount_target_id=$(get_mount_target_id ${dst_efs} ${subnet_id})
 src_efs_sg=$(get_mount_target_sg ${src_mount_target_id})
 dst_efs_sg=$(get_mount_target_sg ${dst_mount_target_id})
 
-
-
 aws cloudformation deploy \
     --stack-name "aws-simple-efs-backup-${curdate}" \
     --template-file cfn/backup.yml \

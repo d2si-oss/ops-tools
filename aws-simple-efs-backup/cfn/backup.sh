@@ -11,7 +11,7 @@ region=$4
 
 verify_args(){
     if [ -z ${2+x} ]; then
-        echo "$1 is missing, aborting backup"
+        echo "ERR: $1 is missing, aborting backup"
         return 1
     fi
 }
