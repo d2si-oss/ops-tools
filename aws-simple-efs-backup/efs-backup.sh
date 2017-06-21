@@ -51,6 +51,8 @@ done
 shift $((OPTIND - 1))
 (($# != 0)) && usage
 
+[[ -z ${dst_efs} || -z ${subnet_id} || -z ${src_efs} ]] && usage
+
 curdate=$(date +%Y%m%d-%H%M)
 instance_type=${instance_type:-"t2.micro"}
 vpc_id=$(aws ec2 describe-subnets --subnet-ids ${subnet_id} --output text \
