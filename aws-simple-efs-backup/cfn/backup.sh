@@ -56,7 +56,7 @@ mkdir -p ${dst_mount}
 mount_efs ${src_efs} ${src_mount} ${region}
 mount_efs ${dst_efs} ${dst_mount} ${region}
 
-mkdir -p -m 700 ${dst_mount}/$src_efs/{,efsbackup-logs}
+mkdir -p -m 700 ${dst_mount}/${src_efs}/{,efsbackup-logs}
 
 curr_date=$(date +%Y%m%d-%H%M)
 logfile="${dst_mount}/${src_efs}/efsbackup-logs/${src_efs}-${curr_date}.log"
