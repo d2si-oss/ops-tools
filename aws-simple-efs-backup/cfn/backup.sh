@@ -17,9 +17,7 @@ verify_args(){
 }
 
 mount_efs(){
-    efsid=$1
-    mntpt=$2
-    region=$3
+    local efsid=$1 mntpt=$2 region=$3
 
     mount -t nfs4 \
         -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 \

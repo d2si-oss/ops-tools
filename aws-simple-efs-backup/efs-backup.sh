@@ -17,8 +17,7 @@ verify_args(){
 }
 
 get_mount_target_id(){
-    local efs_id=$1
-    local subnet_id=$2
+    local efs_id=$1 subnet_id=$2
 
     aws efs describe-mount-targets \
         --file-system-id ${efs_id} \
@@ -37,6 +36,7 @@ get_mount_target_sg(){
 
 get_stack_status(){
     local stack_name=$1
+
     aws cloudformation describe-stacks \
         --stack-name ${stack_name} \
         --query 'Stacks[0].StackStatus' \
