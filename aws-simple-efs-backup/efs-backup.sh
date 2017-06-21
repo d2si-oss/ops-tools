@@ -36,11 +36,11 @@ get_mount_target_sg(){
 }
 
 get_stack_status(){
-  local stack_name=$1
-  aws cloudformation describe-stacks \
-    --stack-name ${stack_name} \
-    --query 'Stacks[0].StackStatus' \
-    --output text
+    local stack_name=$1
+    aws cloudformation describe-stacks \
+        --stack-name ${stack_name} \
+        --query 'Stacks[0].StackStatus' \
+        --output text
 }
 
 command -v aws >/dev/null 2>&1 ||

@@ -46,7 +46,6 @@ verify_args "region" ${region}
 validate_path ${source_efs}
 validate_path ${destination_efs}
 
-
 echo "Running backup script"
 
 source_mount="/backup"
