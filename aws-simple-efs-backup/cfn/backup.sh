@@ -18,12 +18,12 @@ verify_args(){
 
 mount_efs(){
     efsid=$1
-    mountpoint=$2
+    mntpt=$2
     region=$3
 
     mount -t nfs4 \
         -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 \
-        "${efsid}.efs.${region}.amazonaws.com:/" ${mountpoint}
+        "${efsid}.efs.${region}.amazonaws.com:/" ${mntpt}
 }
 
 echo "===> checking script parameters"
