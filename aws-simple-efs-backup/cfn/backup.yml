@@ -117,8 +117,7 @@ Resources:
          !Sub |
             #!/bin/sh
             yum install -y awscli awslogs nfs-utils
-            #curl -sSL https://raw.githubusercontent.com/d2si-oss/ops-tools/master/aws-simple-efs-backup/cfn/backup.sh > /tmp/backup.sh
-            curl -sSL https://raw.githubusercontent.com/bonclay7/ops-tools/0ce3923e85771298131acf5dfe7353d4769276fd/aws-simple-efs-backup/cfn/backup.sh > /tmp/backup.sh
+            curl -sSL https://raw.githubusercontent.com/d2si-oss/ops-tools/master/aws-simple-efs-backup/cfn/backup.sh > /tmp/backup.sh
             chmod +x /tmp/backup.sh
             ./tmp/backup.sh ${AWS::StackName} ${SourceEFS} ${DestinationEFS} ${AWS::Region}
      Tags:

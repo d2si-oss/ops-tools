@@ -29,7 +29,7 @@ Example :
 ```bash
 git clone https://github.com/d2si-oss/ops-tools
 cd ops-tools/aws-simple-efs-backup
-./efs-backup.sh --source fs-e41bd42d --dest fs-e21bd42b --subnet-id subnet-e94dff8d
+./efs-backup.sh -s fs-e41bd42d -d fs-e21bd42b -S subnet-e94dff8d
 ```
 
 ### Files on source file system:
