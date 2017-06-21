@@ -9,16 +9,8 @@ usage(){
     return 1
 }
 
-verify_args(){
-    if [ -z ${2+x} ]; then
-        echo "ERR: $1 is mandatory"
-        return 1
-    fi
-}
-
 get_mount_target_id(){
-    local efs_id=$1
-    local subnet_id=$2
+    local efs_id=$1 subnet_id=$2
 
     aws efs describe-mount-targets \
         --file-system-id ${efs_id} \
@@ -37,6 +29,7 @@ get_mount_target_sg(){
 
 get_stack_status(){
     local stack_name=$1
+
     aws cloudformation describe-stacks \
         --stack-name ${stack_name} \
         --query 'Stacks[0].StackStatus' \
@@ -48,18 +41,20 @@ command -v aws >/dev/null 2>&1 ||
 
 while getopts "s:d:S:i:" arg; do
     case ${arg} in
-        s) src_efs=${OPTARG} ;;
         d) dst_efs=${OPTARG} ;;
-        S) subnet_id=${OPTARG} ;;
         i) instance_type=${OPTARG} ;;
+        S) subnet_id=${OPTARG} ;;
+        s) src_efs=${OPTARG} ;;
         *) usage ;;
     esac
 done
+shift $((OPTIND - 1))
 
+(($# != 0)) || [[ -z ${dst_efs} || -z ${subnet_id} || -z ${src_efs} ]] && usage
+
+curdate=$(date +%Y%m%d-%H%M)
 instance_type=${instance_type:-"t2.micro"}
-vpc_id=$(aws ec2 describe-subnets \
-    --subnet-ids ${subnet_id} \
-    --output text \
+vpc_id=$(aws ec2 describe-subnets --subnet-ids ${subnet_id} --output text \
     --query "Subnets[0].VpcId")
 
 src_mount_target_id=$(get_mount_target_id ${src_efs} ${subnet_id})
@@ -67,8 +62,6 @@ dst_mount_target_id=$(get_mount_target_id ${dst_efs} ${subnet_id})
 
 src_efs_sg=$(get_mount_target_sg ${src_mount_target_id})
 dst_efs_sg=$(get_mount_target_sg ${dst_mount_target_id})
-
-curdate=$(date +%Y%m%d-%H%M)
 
 aws cloudformation deploy \
     --stack-name "aws-simple-efs-backup-${curdate}" \
