@@ -56,13 +56,12 @@ mkdir -p ${dst_mount}
 mount_efs ${src_efs} ${src_mount} ${region}
 mount_efs ${dst_efs} ${dst_mount} ${region}
 
-# First create directory if doesn't exist
 mkdir -p -m 700 ${dst_mount}/$src_efs/{,efsbackup-logs}
 
 curr_date=$(date +%Y%m%d-%H%M)
 logfile="${dst_mount}/${src_efs}/efsbackup-logs/${src_efs}-${curr_date}.log"
 
-# Back up files
+# Backup files
 rsync -ah --stats --delete --numeric-ids --log-file="${logfile}" \
     ${src_mount} ${dst_mount}/${src_efs}/${curr_date}
 
