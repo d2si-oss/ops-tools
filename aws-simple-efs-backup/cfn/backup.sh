@@ -5,10 +5,9 @@
 set -e
 
 stack_name=$1
-source_efs=$2
-destination_efs=$3
+src_efs=$2
+dst_efs=$3
 region=$4
-
 
 echo "Checking script parameters"
 verify_args(){
@@ -39,32 +38,32 @@ mount_efs(){
 }
 
 verify_args "stack_name" ${stack_name}
-verify_args "source_efs" ${source_efs}
-verify_args "destination_efs" ${destination_efs}
+verify_args "src_efs" ${src_efs}
+verify_args "dst_efs" ${dst_efs}
 verify_args "region" ${region}
 
-validate_path ${source_efs}
-validate_path ${destination_efs}
+validate_path ${src_efs}
+validate_path ${dst_efs}
 
 echo "Running backup script"
 
-source_mount="/backup"
-dest_mount="/mnt/backup"
-mkdir -p ${source_mount}
-mkdir -p ${dest_mount}
+src_mount="/backup"
+dst_mount="/mnt/backup"
+mkdir -p ${src_mount}
+mkdir -p ${dst_mount}
 
-mount_efs ${source_efs} ${source_mount} ${region}
-mount_efs ${destination_efs} ${dest_mount} ${region}
+mount_efs ${src_efs} ${src_mount} ${region}
+mount_efs ${dst_efs} ${dst_mount} ${region}
 
 # First create directory if doesn't exist
-mkdir -p -m 700 ${dest_mount}/$source_efs/{,efsbackup-logs}
+mkdir -p -m 700 ${dst_mount}/$src_efs/{,efsbackup-logs}
 
 curr_date=$(date +%Y%m%d-%H%M)
-logfile="${dest_mount}/${source_efs}/efsbackup-logs/${source_efs}-${curr_date}.log"
+logfile="${dst_mount}/${src_efs}/efsbackup-logs/${src_efs}-${curr_date}.log"
 
 # Back up files
 rsync -ah --stats --delete --numeric-ids --log-file="${logfile}" \
-    ${source_mount} ${dest_mount}/${source_efs}/${curr_date}
+    ${src_mount} ${dst_mount}/${src_efs}/${curr_date}
 
 echo "Removing cloudformation stack"
 aws cloudformation delete-stack --stack-name ${stack_name} --region ${region}
