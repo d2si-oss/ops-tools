@@ -16,16 +16,6 @@ verify_args(){
     fi
 }
 
-validate_path(){
-    if [[ $1 == *"../"* ]]; then
-        return 1
-    fi
-
-    if [[ $1 == "/" ]]; then
-        return 1
-    fi
-}
-
 mount_efs(){
     efsid=$1
     mountpoint=$2
@@ -42,9 +32,6 @@ verify_args "stack_name" ${stack_name}
 verify_args "src_efs" ${src_efs}
 verify_args "dst_efs" ${dst_efs}
 verify_args "region" ${region}
-
-validate_path ${src_efs}
-validate_path ${dst_efs}
 
 echo "===> running backup script"
 
