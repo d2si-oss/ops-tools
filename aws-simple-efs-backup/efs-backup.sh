@@ -9,13 +9,6 @@ usage(){
     return 1
 }
 
-verify_args(){
-    if [ -z ${2+x} ]; then
-        echo "ERR: $1 is mandatory"
-        return 1
-    fi
-}
-
 get_mount_target_id(){
     local efs_id=$1 subnet_id=$2
 
